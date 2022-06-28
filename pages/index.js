@@ -7,7 +7,7 @@ import SearchInput from "../components/SearchField";
 import styles from "../styles/Home.module.css";
 import { getPokemon, getPokemons } from "./api/helper";
 
-const pokemonUrl = "https://pokeapi.co/api/v2/pokemon?offset=200&limit=200";
+const pokemonUrl = "https://pokeapi.co/api/v2/pokemon";
 
 export default function Home() {
   const [pokemonData, setPokemonData] = useState([]);
@@ -67,9 +67,9 @@ export default function Home() {
   // }, [keyword]);
 
   const onInputChange = (e) => {
-    // e.preventDefault();
+    e.preventDefault();
 
-    setKeyword(e.target.value.toLowerCase());
+    setKeyword(e.target.value);
   };
 
   return (
@@ -120,10 +120,13 @@ export default function Home() {
               <div className="flex flex-wrap justify-center md:mx-12 h-full">
                 {pokemonData
                   .filter((value) => {
-                    if (keyword === "") {
-                      return value;
-                    } else if (
-                      value.name.toLowerCase().includes(keyword.toLowerCase())
+                    if (
+                      value.name
+                        .toLowerCase()
+                        .includes(keyword.toLowerCase()) ||
+                      value.types[0].type.name
+                        .toLowerCase()
+                        .includes(keyword.toLowerCase())
                     ) {
                       return value;
                     }
