@@ -4,7 +4,7 @@ import React from "react";
 
 function Card({ pokemon }) {
   return (
-    <div className="bg-white m-5 rounded-lg px-6 py-6 w-[300px] ">
+    <div className="bg-gray-100 m-5 rounded-lg px-6 py-6 w-[300px] transition transform hover:shadow-xl hover:scale-105 hover:bg-white cursor-pointer">
       <div className="text-center flex flex-col items-center">
         <img src={pokemon.sprites.front_default} alt="pokemon image" />
         <div className=" capitalize font-bold">{pokemon.name}</div>

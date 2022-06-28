@@ -7,7 +7,7 @@ import SearchInput from "../components/SearchField";
 import styles from "../styles/Home.module.css";
 import { getPokemon, getPokemons } from "./api/helper";
 
-const pokemonUrl = "https://pokeapi.co/api/v2/pokemon";
+const pokemonUrl = "https://pokeapi.co/api/v2/pokemon?offset=200&limit=200";
 
 export default function Home() {
   const [pokemonData, setPokemonData] = useState([]);
@@ -117,7 +117,7 @@ export default function Home() {
                 <h1>Loading....</h1>
               </div>
             ) : (
-              <div className="flex flex-wrap justify-center md:mx-12 h-full">
+              <div className="flex flex-wrap justify-center md:mx-12 h-full ">
                 {pokemonData
                   .filter((value) => {
                     if (
