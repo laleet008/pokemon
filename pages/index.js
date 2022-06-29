@@ -7,7 +7,7 @@ import SearchInput from "../components/SearchField";
 import styles from "../styles/Home.module.css";
 import { getPokemon, getPokemons } from "./api/helper";
 
-const pokemonUrl = "https://pokeapi.co/api/v2/pokemon?offset=200&limit=200";
+const pokemonUrl = "https://pokeapi.co/api/v2/pokemon";
 
 export default function Home() {
   const [pokemonData, setPokemonData] = useState([]);
@@ -15,6 +15,7 @@ export default function Home() {
   const [nextUrl, setNextUrl] = useState("");
   const [prevUrl, setPrevUrl] = useState("");
   const [keyword, setKeyword] = useState("");
+  const [isChecked, setIsChecked] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -57,20 +58,59 @@ export default function Home() {
     setPokemonData(currentPokemon);
   };
 
-  // const fileterPokemonData = pokemonData.filter(
-  //   (pokemon) => pokemon.name.toLowerCase().includes(keyword)
-  //   // || pokemon.types.name.toLowerCase().includes(keyword)
-  // );
+  const filterPokemonData = pokemonData.filter(
+    (pokemon) =>
+      pokemon.name.toLowerCase().includes(keyword) ||
+      pokemon.types[0].type.name.toLowerCase().includes(keyword)
+  );
 
-  // useEffect(() => {
-  //   setPokemonData(fileterPokemonData);
-  // }, [keyword]);
+  useEffect(() => {
+    setPokemonData(filterPokemonData);
+  }, [keyword]);
 
   const onInputChange = (e) => {
     e.preventDefault();
-
     setKeyword(e.target.value);
   };
+
+  // const filterByType = (e) => {
+  //   setIsChecked(e.target.checked);
+  //   if (e.target.checked) {
+  //     setPokemonData(
+  //       pokemonData.filter((pokemon) =>
+  //         pokemon.types.some((type) => type.type.name === e.target.value)
+  //       )
+  //     );
+  //   } else {
+  //     setPokemonData();
+  //   }
+  // };
+
+  const onSelect = (e) => {
+    let selected = e.target.value;
+
+    let selectedPokemon = pokemonData.filter((pokemon) =>
+      pokemon.types[0].type.name.includes(selected)
+    );
+    setPokemonData(selectedPokemon);
+    // setIsChecked(selectedPokemon);
+  };
+
+  // useEffect(() => {
+  //   if (!isChecked) {
+  //     setPokemonData(isChecked);
+  //   } else {
+  //     setPokemonData(filterPokemonData);
+  //   }
+  // }, [isChecked]);
+
+  const onSelectAll = () => {
+    setPokemonData(pokemonData);
+  };
+
+  // useEffect(() => {
+  //   setisSelected(e.target.value);
+  // }, [pokemonData]);
 
   return (
     <div>
@@ -86,14 +126,11 @@ export default function Home() {
           </div>
           <p className="center-everything h-12">
             Total pokemon found:
-            {/* {pokemonData.map((pokemonData) => (
-                <p key={idd.id}>{pokemonData[pokemonData.length - 1].id}</p>
-              ))} */}
             {pokemonData.length}
           </p>
 
           <div className="flex gap-20 ">
-            <div className="flex justify-start md:ml-28 ml-10">
+            <div className="flex justify-start md:ml-28 ml-10 self-start">
               <div className="flex w-[180px] justify-between">
                 <button onClick={prev} className="button-flex">
                   <FaArrowLeft /> Prev
@@ -109,32 +146,48 @@ export default function Home() {
                 onChange={onInputChange}
               />
             </div>
+            <div className="font-bold">
+              Select Type:
+              {[
+                ...new Set(
+                  pokemonData.map((pokemon) => pokemon.types[0].type.name)
+                ),
+              ].map((data) => {
+                return (
+                  <div
+                    key={data}
+                    className="flex items-center gap-1 font-normal"
+                  >
+                    <input
+                      type="checkbox"
+                      className="mt-1"
+                      value={data}
+                      // checked={isChecked}
+                      onChange={onSelect}
+                    />
+                    <p>{data}</p>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex self-start gap-2">
+              <input type="checkbox" onChange={onSelectAll} />
+              <p>Select All</p>
+            </div>
           </div>
 
-          <div flex justify-center items-center>
+          <div flex justify-center w-full items-center>
             {loading ? (
-              <div className="center-everything h-screen">
+              <div className="center-everything h-full">
                 <h1>Loading....</h1>
               </div>
             ) : (
-              <div className="flex flex-wrap justify-center md:mx-12 h-full ">
-                {pokemonData
-                  .filter((value) => {
-                    if (
-                      value.name
-                        .toLowerCase()
-                        .includes(keyword.toLowerCase()) ||
-                      value.types[0].type.name
-                        .toLowerCase()
-                        .includes(keyword.toLowerCase())
-                    ) {
-                      return value;
-                    }
-                  })
-
-                  .map((pokemon) => {
-                    return <Card key={pokemon.id} pokemon={pokemon} />;
-                  })}
+              <div className="w-full">
+                <div className="flex flex-wrap w-full h-full mx-12">
+                  {pokemonData.map((pokemon) => (
+                    <Card key={pokemon.id} pokemon={pokemon} />
+                  ))}
+                </div>
               </div>
             )}
 
