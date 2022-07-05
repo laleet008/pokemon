@@ -27,3 +27,12 @@ a {
 .button-flex {
   @apply flex gap-2 px-2 py-2 bg-green-800 text-white justify-center items-center rounded hover:bg-green-900;
 }
+
+.stats-container {
+  /* columns: 2; */
+}
+
+.move-container {
+  display: flex;
+  flex-direction: column;
+}

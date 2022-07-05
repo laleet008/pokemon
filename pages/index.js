@@ -1,6 +1,8 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 import Card from "../components/Card";
 import SearchInput from "../components/SearchField";
@@ -10,43 +12,25 @@ import { getPokemon, getPokemons } from "./api/helper";
 const pokemonUrl = "https://pokeapi.co/api/v2/pokemon";
 
 export default function Home() {
+  const [allPokemons, setAllPokemons] = useState([]);
   const [pokemonData, setPokemonData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [nextUrl, setNextUrl] = useState("");
   const [prevUrl, setPrevUrl] = useState("");
-  const [keyword, setKeyword] = useState("");
-  const [isChecked, setIsChecked] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const [checkedTypes, setCheckedTypes] = useState([]);
 
   useEffect(() => {
     async function fetchData() {
       let res = await getPokemons(pokemonUrl);
       setNextUrl(res.next);
       setPrevUrl(res.previous);
-
       await fetchPokemon(res.results);
       setLoading(false);
     }
     fetchData();
   }, []);
-
-  const next = async () => {
-    setLoading(true);
-    let data = await getPokemons(nextUrl);
-    await fetchPokemon(data.results);
-    setNextUrl(data.next);
-    setPrevUrl(data.previous);
-    setLoading(false);
-  };
-
-  const prev = async () => {
-    if (!prevUrl) return;
-    setLoading(true);
-    let data = await getPokemons(prevUrl);
-    await fetchPokemon(data.results);
-    setNextUrl(data.next);
-    setPrevUrl(data.previous);
-    setLoading(false);
-  };
 
   const fetchPokemon = async (data) => {
     let currentPokemon = await Promise.all(
@@ -56,61 +40,83 @@ export default function Home() {
       })
     );
     setPokemonData(currentPokemon);
+    setAllPokemons(currentPokemon);
   };
 
-  const filterPokemonData = pokemonData.filter(
-    (pokemon) =>
-      pokemon.name.toLowerCase().includes(keyword) ||
-      pokemon.types[0].type.name.toLowerCase().includes(keyword)
-  );
+  const next = async () => {
+    setCheckedTypes("");
+    setLoading(true);
+
+    let data = await getPokemons(nextUrl);
+    await fetchPokemon(data.results);
+    setNextUrl(data.next);
+    setPrevUrl(data.previous);
+    setLoading(false);
+  };
+
+  const prev = async () => {
+    if (!prevUrl) return;
+    setCheckedTypes("");
+    setLoading(true);
+
+    let data = await getPokemons(prevUrl);
+    await fetchPokemon(data.results);
+    setNextUrl(data.next);
+    setPrevUrl(data.previous);
+
+    setLoading(false);
+  };
 
   useEffect(() => {
-    setPokemonData(filterPokemonData);
-  }, [keyword]);
+    const newPokemonData = allPokemons.filter(
+      (pokemon) =>
+        pokemon.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        pokemon.types[0].type.name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+    );
+    setPokemonData(newPokemonData);
+    // setPokemonData(filterPokemonData);
+  }, [allPokemons, searchQuery]);
+
+  useEffect(() => {
+    const filteredPokemonArray = [];
+    for (let pokemon of allPokemons) {
+      // console.log(pokemon);
+      if (
+        searchQuery.length > 0 &&
+        !pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
+      ) {
+        continue;
+      }
+
+      if (
+        checkedTypes.length > 0 &&
+        !checkedTypes.includes(pokemon.types[0].type.name)
+      ) {
+        continue;
+      }
+
+      filteredPokemonArray.push(pokemon);
+    }
+
+    setPokemonData(filteredPokemonArray);
+  }, [allPokemons, checkedTypes, searchQuery]);
 
   const onInputChange = (e) => {
     e.preventDefault();
-    setKeyword(e.target.value);
+    setSearchQuery(e.target.value);
   };
-
-  // const filterByType = (e) => {
-  //   setIsChecked(e.target.checked);
-  //   if (e.target.checked) {
-  //     setPokemonData(
-  //       pokemonData.filter((pokemon) =>
-  //         pokemon.types.some((type) => type.type.name === e.target.value)
-  //       )
-  //     );
-  //   } else {
-  //     setPokemonData();
-  //   }
-  // };
 
   const onSelect = (e) => {
     let selected = e.target.value;
-
-    let selectedPokemon = pokemonData.filter((pokemon) =>
-      pokemon.types[0].type.name.includes(selected)
-    );
-    setPokemonData(selectedPokemon);
-    // setIsChecked(selectedPokemon);
+    if (!checkedTypes.includes(selected)) {
+      setCheckedTypes([...checkedTypes, selected]);
+    } else {
+      const filterTypes = checkedTypes.filter((type) => type !== selected);
+      setCheckedTypes(filterTypes);
+    }
   };
-
-  // useEffect(() => {
-  //   if (!isChecked) {
-  //     setPokemonData(isChecked);
-  //   } else {
-  //     setPokemonData(filterPokemonData);
-  //   }
-  // }, [isChecked]);
-
-  const onSelectAll = () => {
-    setPokemonData(pokemonData);
-  };
-
-  // useEffect(() => {
-  //   setisSelected(e.target.value);
-  // }, [pokemonData]);
 
   return (
     <div>
@@ -126,7 +132,7 @@ export default function Home() {
           </div>
           <p className="center-everything h-12">
             Total pokemon found:
-            {pokemonData.length}
+            {pokemonData && pokemonData.length}
           </p>
 
           <div className="flex gap-20 ">
@@ -144,13 +150,14 @@ export default function Home() {
               <SearchInput
                 placeholder="search pokemon by name or type"
                 onChange={onInputChange}
+                value={searchQuery}
               />
             </div>
             <div className="font-bold">
               Select Type:
               {[
                 ...new Set(
-                  pokemonData.map((pokemon) => pokemon.types[0].type.name)
+                  allPokemons.map((pokemon) => pokemon.types[0].type.name)
                 ),
               ].map((data) => {
                 return (
@@ -170,36 +177,34 @@ export default function Home() {
                 );
               })}
             </div>
-            <div className="flex self-start gap-2">
+            {/* <div className="flex self-start gap-2">
               <input type="checkbox" onChange={onSelectAll} />
               <p>Select All</p>
-            </div>
+            </div> */}
           </div>
 
-          <div flex justify-center w-full items-center>
+          <div className="flex justify-center w-full items-center">
             {loading ? (
-              <div className="center-everything h-full">
-                <h1>Loading....</h1>
-              </div>
+              <Skeleton count={1} height={100} />
             ) : (
               <div className="w-full">
                 <div className="flex flex-wrap w-full h-full mx-12">
-                  {pokemonData.map((pokemon) => (
-                    <Card key={pokemon.id} pokemon={pokemon} />
-                  ))}
+                  {pokemonData &&
+                    pokemonData.map((pokemon) => (
+                      <Card key={pokemon.id} pokemon={pokemon} />
+                    ))}
                 </div>
               </div>
             )}
-
-            <div className="flex justify-end md:mr-28 mr-10 ">
-              <div className="flex w-[180px] justify-between">
-                <button onClick={prev} className="button-flex">
-                  <FaArrowLeft /> Prev
-                </button>
-                <button onClick={next} className="button-flex">
-                  Next <FaArrowRight />
-                </button>
-              </div>
+          </div>
+          <div className="flex justify-end md:mr-28 mr-10 ">
+            <div className="flex w-[180px] justify-between">
+              <button onClick={prev} className="button-flex">
+                <FaArrowLeft /> Prev
+              </button>
+              <button onClick={next} className="button-flex">
+                Next <FaArrowRight />
+              </button>
             </div>
           </div>
         </div>
