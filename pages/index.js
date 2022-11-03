@@ -1,15 +1,16 @@
 import Head from "next/head";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
 import Card from "../components/Card";
-import SearchInput from "../components/SearchField";
+import Sidebar from "../components/Sidebar";
 import styles from "../styles/Home.module.css";
 import { getPokemon, getPokemons } from "./api/helper";
 
-const pokemonUrl = "https://pokeapi.co/api/v2/pokemon";
+const pokemonUrl = "https://pokeapi.co/api/v2/pokemon?offset=0&limit=21";
 
 export default function Home() {
   const [allPokemons, setAllPokemons] = useState([]);
@@ -80,7 +81,7 @@ export default function Home() {
   }, [allPokemons, searchQuery]);
 
   useEffect(() => {
-    const filteredPokemonArray = [];
+    const filteredPokemonArray = []; 
     for (let pokemon of allPokemons) {
       // console.log(pokemon);
       if (
@@ -128,76 +129,45 @@ export default function Home() {
       <main>
         <div className="py-4">
           <div className="center-everything h-20">
-            <h1 className="text-3xl font-bold text-gray-700">Hi, Pokemon</h1>
+            <Image
+              src="https://www.pngall.com/wp-content/uploads/13/Pokemon-Logo-PNG-Images-HD.png"
+              alt="pokemon"
+              height={170}
+              width={300}
+            />
           </div>
           <p className="center-everything h-12">
             Total pokemon found:
             {pokemonData && pokemonData.length}
           </p>
 
-          <div className="flex gap-20 ">
-            <div className="flex justify-start md:ml-28 ml-10 self-start">
-              <div className="flex w-[180px] justify-between">
-                <button onClick={prev} className="button-flex">
-                  <FaArrowLeft /> Prev
-                </button>
-                <button onClick={next} className="button-flex">
-                  Next <FaArrowRight />
-                </button>
-              </div>
-            </div>
-            <div className="md:w-[400px]">
-              <SearchInput
-                placeholder="search pokemon by name or type"
-                onChange={onInputChange}
-                value={searchQuery}
+          <div className="main__container">
+            <div className="sidebar-container  ">
+              <Sidebar
+                allPokemons={allPokemons}
+                searchQuery={searchQuery}
+                onInputChange={onInputChange}
+                onSelect={onSelect}
+                className=" "
               />
             </div>
-            <div className="font-bold">
-              Select Type:
-              {[
-                ...new Set(
-                  allPokemons.map((pokemon) => pokemon.types[0].type.name)
-                ),
-              ].map((data) => {
-                return (
-                  <div
-                    key={data}
-                    className="flex items-center gap-1 font-normal"
-                  >
-                    <input
-                      type="checkbox"
-                      className="mt-1"
-                      value={data}
-                      // checked={isChecked}
-                      onChange={onSelect}
-                    />
-                    <p>{data}</p>
-                  </div>
-                );
-              })}
-            </div>
-            {/* <div className="flex self-start gap-2">
-              <input type="checkbox" onChange={onSelectAll} />
-              <p>Select All</p>
-            </div> */}
-          </div>
 
-          <div className="flex justify-center w-full items-center">
-            {loading ? (
-              <Skeleton count={1} height={100} />
-            ) : (
-              <div className="w-full">
-                <div className="flex flex-wrap w-full h-full mx-12">
-                  {pokemonData &&
-                    pokemonData.map((pokemon) => (
-                      <Card key={pokemon.id} pokemon={pokemon} />
-                    ))}
+            <div className="flex justify-center w-full items-center">
+              {loading ? (
+                <Skeleton count={1} height={100} />
+              ) : (
+                <div className="w-full">
+                  <div className="flex flex-wrap w-full h-full">
+                    {pokemonData &&
+                      pokemonData.map((pokemon) => (
+                        <Card key={pokemon.id} pokemon={pokemon} />
+                      ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-          <div className="flex justify-end md:mr-28 mr-10 ">
+          <div className="flex justify-center md:mr-28 my-12 ">
             <div className="flex w-[180px] justify-between">
               <button onClick={prev} className="button-flex">
                 <FaArrowLeft /> Prev

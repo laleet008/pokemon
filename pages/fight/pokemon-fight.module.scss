@@ -1,0 +1,62 @@
+.container__fight {
+  padding: 30px 60px;
+
+  &_heading {
+    width: full;
+    display: flex;
+    justify-content: center;
+    h1 {
+      font-size: 30px;
+      font-weight: 500;
+      animation: glow-heading 1s ease-in-out infinite alternate;
+    }
+    @keyframes glow-heading {
+      from {
+        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073,
+          0 0 40px #e60073, 0 0 50px #e60073, 0 0 60px #e60073, 0 0 70px #e60073;
+      }
+
+      to {
+        text-shadow: 0 0 20px #fff, 0 0 30px #ff4da6, 0 0 40px #ff4da6,
+          0 0 50px #ff4da6, 0 0 60px #ff4da6, 0 0 70px #ff4da6, 0 0 80px #ff4da6;
+      }
+    }
+  }
+
+  &_select {
+    display: flex;
+    width: 60%;
+    justify-content: space-between;
+    margin-top: 60px;
+    select {
+      padding: 15px;
+      border-radius: 10px;
+    }
+  }
+}
+
+.container__card {
+  width: 70%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 60px;
+  align-items: center;
+  &_battle {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 30px;
+    button {
+      background-color: rgb(238, 70, 70);
+      padding: 15px 25px;
+      border-radius: 4px;
+      // width: 100%;
+      color: white;
+      font-size: 20px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+  }
+}
+
+// flex justify-between w-3/5 items-center mt-20

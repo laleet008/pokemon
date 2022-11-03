@@ -1,5 +1,5 @@
 export function getPokemon({ url }) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
@@ -9,7 +9,7 @@ export function getPokemon({ url }) {
 }
 
 export async function getPokemons(url) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     fetch(url)
       .then((res) => res.json())
       .then((data) => {

@@ -11,6 +11,22 @@ body {
   background-color: #e2e2e2;
 }
 
+:root {
+  --progress-hp:0%;
+  --progress-attack:0%;
+  --progress-defense:0%;
+  --progress-special-attack:0%;
+  --progress-special-defense:0%;
+  --progress-speed:0%;
+  
+}
+
+
+
+/* * {
+  outline: 1px solid green;
+} */
+
 a {
   color: inherit;
   text-decoration: none;
@@ -35,4 +51,22 @@ a {
 .move-container {
   display: flex;
   flex-direction: column;
+}
+
+
+.main__container{
+  display: grid;
+  grid-template-columns: 2fr 10fr;
+  gap: 80px;
+ 
+  }
+
+.dropdown-menu{
+  transition: max-height 0.3s ease-in;
+}
+
+.sidebar-container{
+ position: sticky;
+ position: -webkit-sticky;
+ top: 0; 
 }
